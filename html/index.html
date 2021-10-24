@@ -32,28 +32,30 @@
                             <div class="card-body p-5">
                                 <h2 class="text-uppercase text-center mb-5">Create an account</h2>
 
-                                <form>
+                                <form method="POST">
 
                                     <div class="form-outline mb-4">
                                         <label class="form-label" for="form3Example1cg">Name</label>
-                                        <input type="text" id="form3Example1cg" class="form-control form-control-lg" />
+                                        <input type="text" id="form3Example1cg" class="form-control form-control-lg"
+                                            name="name" value="{{name}}" />
                                     </div>
 
                                     <div class="form-outline mb-4">
                                         <label class="form-label" for="form3Example3cg">Email</label>
-                                        <input type="email" id="form3Example3cg" class="form-control form-control-lg" />
+                                        <input type="email" id="form3Example3cg" class="form-control form-control-lg"
+                                            name="email" value="{{email}}" />
                                     </div>
 
                                     <div class="form-outline mb-4">
                                         <label class="form-label" for="form3Example4cg">Mobile</label>
                                         <input type="tel" id="form3Example4cg" class="form-control form-control-lg"
-                                            pattern="+[0-9]{2}-[0-9]{9}" />
+                                            name="phone" value="{{phone}}" />
                                     </div>
 
                                     <div class="form-outline mb-4">
                                         <label class="form-label" for="form3Example4cdg">Repeat your password</label>
                                         <input type="password" id="form3Example4cdg"
-                                            class="form-control form-control-lg" />
+                                            class="form-control form-control-lg" name="password" value="{{password}}" />
                                     </div>
 
                                     <label class="form-label" for="form3Example4cdg">Payment Method</label>
@@ -69,8 +71,8 @@
                                     </div>
                                     <br>
                                     <div class="d-flex justify-content-center">
-                                        <button type="button"
-                                            class="btn btn-primary btn-block btn-lg gradient-custom-4 text-body">Register</button>
+                                        <input type="submit" value="Register"
+                                            class="btn btn-primary btn-block btn-lg gradient-custom-4 text-body">
                                     </div>
 
                                     <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="#!"
