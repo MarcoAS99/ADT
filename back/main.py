@@ -23,4 +23,4 @@ async def register(request: Request):
     if await user_reg.register(form.get("name"), form.get("email"), form.get("phone"), form.get("password"), ''):
         return templates.TemplateResponse("login.html", {"request": request})
     else:
-        return {"error": user_reg.error_list}
+        return templates.TemplateResponse("index.html", {"request": request, "error": user_reg.error_list})
