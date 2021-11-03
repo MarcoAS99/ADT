@@ -1,14 +1,14 @@
 from abc import abstractmethod
 from pydantic import BaseModel
+from sqlalchemy.engine.base import Connection
 import re
-from database import conn
 import hashlib
 
 
 class User_model(BaseModel):
     error_list = []
 
-    async def is_valid(self, name: str, email: str, phone: int, password: str):
+    async def is_valid(self, conn: Connection, name: str, email: str, phone: int, password: str):
         print('Inicio is valid')
         if len(name) > 50:
             self.error_list.append('Username max chars is 50.')
@@ -27,8 +27,8 @@ class User_model(BaseModel):
             self.error_list.append('User already exists.')
         return False
 
-    async def register(self, name: str, email: str, phone: int, password: str, paymentMode: str):
-        if await self.is_valid(name, email, phone, password):
+    async def register(self, conn: Connection, name: str, email: str, phone: int, password: str, paymentMode: str):
+        if await self.is_valid(conn, name, email, phone, password):
             query = f"""INSERT INTO User(nombre,email,tlf,pwd,privileges,paymethod)
                       values ('{name}','{email}',{phone},'{hashlib.md5(password.encode()).hexdigest()}',0,'{paymentMode}');"""
             conn.execute(query)
@@ -36,7 +36,7 @@ class User_model(BaseModel):
         else:
             return False
 
-    async def login(self, email: str, pwd: str):
+    async def login(self, conn: Connection, email: str, pwd: str):
         query = f"""SELECT COUNT(email) AS cont FROM User WHERE email LIKE '{email}';"""
         res = conn.execute(query)
         if(res.first()['cont'] <= 0):
