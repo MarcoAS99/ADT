@@ -13,14 +13,15 @@
     {%endblock%}
 </head>
 
-<body
-    style="background-image: url(../static/img/index_back.jpeg); background-repeat: no-repeat;background-size: cover;">
+<body style="background-image: url(../static/img/{%block back_img%}{%endblock%}); background-repeat:
+no-repeat;background-size: cover">
 
     <!-- BARRA DE NAVEGACION -->
     <nav class="navbar navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#" style="font-size: x-large;">ADT</a>
-            <a class="nav-link d-flex" href="/login" style="color: white; font-size: larger;">Login</a>
+            <a class="nav-link d-flex" href="/login" style="color: white; font-size: larger;">{%block
+                nav_log%}{%endblock%}</a>
         </div>
     </nav>
     {%if error is defined and error|length > 0%}
@@ -28,6 +29,11 @@
         {%for e in error%}
         <li>{{e}}</li>
         {%endfor%}
+    </div>
+    {%endif%}
+    {%if msg is defined and msg|length > 0%}
+    <div class="alert alert-success" role="alert">
+        <li>{{msg}}</li>
     </div>
     {%endif%}
     <!-- FORM -->
