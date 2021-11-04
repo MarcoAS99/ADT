@@ -3,11 +3,14 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.responses import RedirectResponse
+from starlette.status import HTTP_302_FOUND
 from schemas import User_model
 import time
 from database import get_conn, get_engine
 from models.modelsDb import define_Tables
 import docker
+from validate_mail import send_validation_email
+
 
 app = FastAPI()
 
@@ -67,6 +70,17 @@ async def shutdown():
     print("Container stopped.")
 
 
+@app.get("/{email}/validate")
+async def validate_email(request: Request, email: str):
+    user_validate = User_model()
+    with engine.connect() as conn:
+        is_validated = await user_validate.validate(conn, email)
+    if is_validated:
+        return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
+    else:
+        return {"error": "Error"}
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
@@ -74,6 +88,7 @@ async def home(request: Request):
 
 @app.get("/login", response_class=HTMLResponse)
 async def get_login(request: Request):
+    print(request.method)
     return templates.TemplateResponse("login.html", {"request": request})
 
 
@@ -91,11 +106,17 @@ async def post_login(request: Request):
 @app.post('/', status_code=status.HTTP_201_CREATED)
 async def register(request: Request):
     form = await request.form()
+    if len(form.keys()) <= 0:
+        return RedirectResponse(url="/login", status_code=HTTP_302_FOUND)
     user_reg = User_model()
+    email = form.get("email")
+    name = form.get("name")
     with engine.connect() as conn:
-        is_registered = await user_reg.register(conn, form.get("name"), form.get("email"), form.get("phone"), form.get("password"), form.get("paymethod"))
+        is_registered = await user_reg.register(conn, name, email, form.get("phone"), form.get("password"), form.get("paymethod"))
     if is_registered:
-        return RedirectResponse(url='/login',  status_code=status.HTTP_302_FOUND)
+        # SEND VALIDATION EMAIL
+        send_validation_email(name, email)
+        return templates.TemplateResponse("validate_register.html", {"request": request})
     return templates.TemplateResponse("register.html", {"request": request, "error": user_reg.error_list})
 
 
@@ -104,3 +125,8 @@ async def get_users():
     with engine.connect() as conn:
         res = conn.execute("SELECT * FROM User;").fetchall()
     return res
+
+
+@app.get("/request_taxi")
+async def get_request_taxi(request: Request):
+    return templates.TemplateResponse("request_taxi.html", {"request": request})

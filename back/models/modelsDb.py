@@ -1,6 +1,6 @@
 from sqlalchemy import Table, Column
 from sqlalchemy.sql.schema import ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, String, DateTime
+from sqlalchemy.sql.sqltypes import Integer, String, DateTime, Boolean
 from sqlalchemy import MetaData
 
 
@@ -15,6 +15,7 @@ def define_Tables():
         Column('tlf', Integer),
         Column('paymethod', String(50)),
         Column('pwd', String(50), nullable=False),
+        Column('validated', Boolean),
         Column('privileges', Integer),
         extend_existing=True
     )
