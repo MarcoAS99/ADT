@@ -50,8 +50,14 @@ class User_model(BaseModel):
         return True
 
     async def validate(self, conn: Connection, email: str):
-        query = f"""UPDATE User SET validated=TRUE WHERE email LIKE '{email}'"""
-        res = conn.execute(query).rowcount
-        if res <= 0:
-            return False
-        return True
+        query = f"""SELECT email FROM User WHERE validated=FALSE"""
+        aux = conn.execute(query).mappings().all()
+        print(aux)
+        for cursor in aux:
+            print(cursor['email'])
+            if email == cursor['email']:
+                query = f"""UPDATE User SET validated=TRUE WHERE email LIKE '{email}'"""
+                res = conn.execute(query).rowcount
+                if res > 0:
+                    return True
+        return False
