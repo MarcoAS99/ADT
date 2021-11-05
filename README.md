@@ -9,5 +9,6 @@ Also you need to have python installed in your machine. Usually you already have
 ## Run the WebApp
 
 To run the WebApp you only need to situate yourself on the back directory and execute the exec.py file, since it will automatically download the requirements.txt and run de webapp for you. These are the steps:
-`cd ./back`  
-`python exec.py`
+
+> `cd ./back`  
+> `python exec.py`
