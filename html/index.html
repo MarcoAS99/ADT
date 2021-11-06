@@ -2,27 +2,37 @@
 <html>
 
 <head>
+    {%block head%}
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>ADT WebApp</title>
+    <title>{%block title%}{%endblock%} - ADT WebApp</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link href="{{ url_for('static', path='../static/css/main.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    {%endblock%}
 </head>
 
-<body
-    style="background-image: url(../static/img/index_back.jpeg); background-repeat: no-repeat;background-size: cover;">
+<body style="background-image: url(../static/img/{%block back_img%}{%endblock%}); background-repeat:
+no-repeat;background-size: cover">
 
     <!-- BARRA DE NAVEGACION -->
     <nav class="navbar navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#" style="font-size: x-large;">ADT</a>
-            <a class="nav-link d-flex" href="#" style="color: white; font-size: larger;">Login</a>
+            <a class="nav-link d-flex" href="/login" style="color: white; font-size: larger;">{%block
+                nav_log%}{%endblock%}</a>
         </div>
     </nav>
-
+    {%if error is defined and error|length > 0%}
+    <div class="alert alert-danger" role="alert">
+        {%for e in error%}
+        <li>{{e}}</li>
+        {%endfor%}
+    </div>
+    {%endif%}
     <!-- FORM -->
+
     <section class="vh-100">
         <div class="mask d-flex align-items-center h-100 gradient-custom-3">
             <div class="container h-100" style="margin-top: 70px;">
@@ -30,56 +40,9 @@
                     <div class="col-12 col-md-9 col-lg-7 col-xl-6">
                         <div class="card" style="border-radius: 15px;">
                             <div class="card-body p-5">
-                                <h2 class="text-uppercase text-center mb-5">Create an account</h2>
-
-                                <form method="POST">
-
-                                    <div class="form-outline mb-4">
-                                        <label class="form-label" for="form3Example1cg">Name</label>
-                                        <input type="text" id="form3Example1cg" class="form-control form-control-lg"
-                                            name="name" value="{{name}}" />
-                                    </div>
-
-                                    <div class="form-outline mb-4">
-                                        <label class="form-label" for="form3Example3cg">Email</label>
-                                        <input type="email" id="form3Example3cg" class="form-control form-control-lg"
-                                            name="email" value="{{email}}" />
-                                    </div>
-
-                                    <div class="form-outline mb-4">
-                                        <label class="form-label" for="form3Example4cg">Mobile</label>
-                                        <input type="tel" id="form3Example4cg" class="form-control form-control-lg"
-                                            name="phone" value="{{phone}}" />
-                                    </div>
-
-                                    <div class="form-outline mb-4">
-                                        <label class="form-label" for="form3Example4cdg">Repeat your password</label>
-                                        <input type="password" id="form3Example4cdg"
-                                            class="form-control form-control-lg" name="password" value="{{password}}" />
-                                    </div>
-
-                                    <label class="form-label" for="form3Example4cdg">Payment Method</label>
-                                    <div class="d-flex justify-content-center btn-group" role="group"
-                                        aria-label="Basic radio toggle button group">
-                                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1"
-                                            autocomplete="off" checked>
-                                        <label class="btn btn-outline-primary" for="btnradio1">Credit Card</label>
-
-                                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2"
-                                            autocomplete="off">
-                                        <label class="btn btn-outline-primary" for="btnradio2">PayPal</label>
-                                    </div>
-                                    <br>
-                                    <div class="d-flex justify-content-center">
-                                        <input type="submit" value="Register"
-                                            class="btn btn-primary btn-block btn-lg gradient-custom-4 text-body">
-                                    </div>
-
-                                    <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="#!"
-                                            class="fw-bold text-body"><u>Login here</u></a></p>
-
-                                </form>
-
+                                <h2 class="text-uppercase text-center mb-5">{%block form_header%}{%endblock%}</h2>
+                                {%block form_content%}
+                                {%endblock%}
                             </div>
                         </div>
                     </div>

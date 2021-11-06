@@ -1,0 +1,6 @@
+docker==5.0.3
+fastapi==0.70.0
+pydantic==1.8.2
+SQLAlchemy==1.4.26
+starlette==0.16.0
+uvicorn==0.15.0

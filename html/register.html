@@ -1,0 +1,50 @@
+{% extends "index.html" %}
+{%block title %}Register{%endblock%}
+{%block head%}{{super()}}{%endblock%}
+{%block back_img%}index_back.jpeg{%endblock%}
+{%block nav_log%}Login{%endblock%}
+{%block form_header%}Create an account{%endblock%}
+{%block form_content%}
+<form method="POST">
+
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form3Example1cg">Name</label>
+        <input type="text" id="form3Example1cg" class="form-control form-control-lg" name="name" value="{{name}}" />
+    </div>
+
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form3Example3cg">Email</label>
+        <input type="text" id="form3Example3cg" class="form-control form-control-lg" name="email" value="{{email}}" />
+    </div>
+
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form3Example4cg">Mobile</label>
+        <input type="tel" id="form3Example4cg" class="form-control form-control-lg" name="phone" value="{{phone}}" />
+    </div>
+
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form3Example4cdg">Password</label>
+        <input type="password" id="form3Example4cdg" class="form-control form-control-lg" name="password"
+            value="{{password}}" />
+    </div>
+
+    <label class="form-label" for="form3Example4cdg">Payment Method</label>
+    <div class="d-flex justify-content-center btn-group" role="group" aria-label="Basic radio toggle button group">
+        <input type="radio" class="btn-check" name="paymethod" id="btnradio1" autocomplete="off" checked
+            value="CreditCard">
+        <label class="btn btn-outline-primary" for="btnradio1">Credit Card</label>
+
+        <input type="radio" class="btn-check" name="paymethod" id="btnradio2" autocomplete="off" value="PayPal">
+        <label class="btn btn-outline-primary" for="btnradio2">PayPal</label>
+    </div>
+    <br>
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary btn-block btn-lg gradient-custom-4 text-body">Register</button>
+    </div>
+
+    <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="/login"
+            class="fw-bold text-body"><u>Login
+                here</u></a></p>
+
+</form>
+{%endblock%}

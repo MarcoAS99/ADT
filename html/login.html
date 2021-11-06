@@ -1,16 +1,22 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Page Title</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link href="{{ url_for('static', path='../static/css/main.css') }}" rel="stylesheet">
-</head>
-
-<body>
-    <h1>LOGIN</h1>
-</body>
-
-</html>
+{% extends "index.html" %}
+{%block title %}Login{%endblock%}
+{%block head%}{{super()}}{%endblock%}
+{%block back_img%}index_back.jpeg{%endblock%}
+{%block form_header%}Login{%endblock%}
+{%block nav_log%}Login{%endblock%}
+{%block form_content%}
+<form method="POST">
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form3Example3cg">Email</label>
+        <input type="text" id="form3Example3cg" class="form-control form-control-lg" name="email" value="{{email}}" />
+    </div>
+    <div class="form-outline mb-4">
+        <label class="form-label" for="form3Example4cdg">Password</label>
+        <input type="password" id="form3Example4cdg" class="form-control form-control-lg" name="password"
+            value="{{password}}" />
+    </div>
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary btn-block btn-lg gradient-custom-4 text-body">Login</button>
+    </div>
+</form>
+{%endblock%}
