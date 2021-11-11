@@ -1,9 +1,16 @@
-from fastapi import FastAPI, Request, status
+import hashlib
+from fastapi import FastAPI, Request, status, HTTPException
+from fastapi import security
+from fastapi.params import Depends
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from starlette.datastructures import Headers
 from starlette.responses import RedirectResponse
 from starlette.status import HTTP_302_FOUND
+from back.schemas import Request_model
+from models.initializeTaxis import create_taxis
 from schemas import User_model
 import time
 from database import get_conn, get_engine
@@ -13,6 +20,8 @@ from validate_mail import send_validation_email
 
 
 app = FastAPI()
+
+security = HTTPBasic()
 
 client = docker.from_env()
 
@@ -61,6 +70,9 @@ async def startup():
         print("Creating ER model...")
         define_Tables().create_all(conn)
         print('ER model created correctly.')
+        print("inserting taxis...")
+        create_taxis(conn)
+        print("taxis inserted correctly.")
 
 
 @app.on_event("shutdown")
@@ -96,10 +108,16 @@ async def get_login(request: Request):
 async def post_login(request: Request):
     form = await request.form()
     user_log = User_model()
+    email = form.get("email")
     with engine.connect() as conn:
-        is_logged = await user_log.login(conn, form.get("email"), form.get("password"))
+        is_logged = await user_log.login(conn, email, form.get("password"))
     if is_logged:
-        return {"login": "logged"}
+        with engine.connect() as conn:
+            priv = await user_log.is_admin(conn, email)
+        if priv == 1:
+            return {"admin": "admin"}
+        # return templates.TemplateResponse("request_taxi.html", {"request": request, "login": "logged"})
+        return RedirectResponse(url=f'/{hashlib.md5(email.encode()).hexdigest()}/request_taxi', status_code=HTTP_302_FOUND)
     return templates.TemplateResponse("login.html", {"request": request, "error": user_log.error_list})
 
 
@@ -127,6 +145,46 @@ async def get_users():
     return res
 
 
-@app.get("/request_taxi")
+async def check_admin(credentials: HTTPBasicCredentials = Depends(security)):
+    user_admin = User_model()
+    with engine.connect() as conn:
+        res = await user_admin.is_admin(conn, credentials.username)
+    return res
+
+
+@app.get("/admin")
+async def read_current_user(admin: int = Depends(check_admin)):
+    if admin == 1:
+        return {"admin": "admin"}
+    return {"admin": "noAdmin"}
+
+
+@app.get('/test/{user}')
+async def test(user):
+    return {"user": user}
+
+
+@app.get("/{user}/request_taxi")
 async def get_request_taxi(request: Request):
     return templates.TemplateResponse("request_taxi.html", {"request": request})
+
+
+@app.post("/{email_hash}/request_taxi")
+async def post_request_taxi(request: Request, email_hash: str):
+    form = await request.form()
+    origin = form.get('origin')
+    destination = form.get('destination')
+    date = form.get('date')
+    time = form.get('time')
+    taxi_request = Request_model()
+    user_request = User_model()
+    with engine.connect() as conn:
+        res, user_id = await user_request.getId(conn, email_hash)
+        if res:
+            res2, taxi_id = await taxi_request.request(conn, origin, destination)
+            if res2:
+                taxi_request.post_request(
+                    conn, taxi_id, user_id, origin, destination, date, time)
+    if res and res2:
+        pass
+    pass

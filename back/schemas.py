@@ -3,6 +3,9 @@ from pydantic import BaseModel
 from sqlalchemy.engine.base import Connection
 import re
 import hashlib
+import numpy as np
+
+from back.models.initializeTaxis import get_coord_by_address
 
 
 class User_model(BaseModel):
@@ -37,10 +40,16 @@ class User_model(BaseModel):
             return False
 
     async def login(self, conn: Connection, email: str, pwd: str):
-        query = f"""SELECT COUNT(email) AS cont FROM User WHERE email LIKE '{email}';"""
-        res = conn.execute(query)
-        if(res.first()['cont'] <= 0):
+        query = f"""SELECT COUNT(email) AS cont, validated FROM User WHERE email LIKE '{email}'
+                    GROUP BY validated;"""
+        res = conn.execute(query).mappings().all()
+        print(res)
+        if(res[0]['cont'] <= 0):
             self.error_list.append('User not registered.')
+            return False
+        if(not res[0]['validated']):
+            self.error_list.append(
+                'User not validated, please check your email.')
             return False
         query = f"""SELECT pwd FROM User WHERE email LIKE '{email}';"""
         res = conn.execute(query)
@@ -50,7 +59,7 @@ class User_model(BaseModel):
         return True
 
     async def validate(self, conn: Connection, email: str):
-        query = f"""SELECT email FROM User WHERE validated=FALSE"""
+        query = f"""SELECT email FROM User WHERE validated=FALSE;"""
         aux = conn.execute(query).mappings().all()
         print(aux)
         for cursor in aux:
@@ -61,3 +70,56 @@ class User_model(BaseModel):
                 if res > 0:
                     return True
         return False
+
+    async def is_admin(self, conn: Connection, email: str):
+        query = f"""SELECT privileges FROM User WHERE email LIKE '{email}';"""
+        res = conn.execute(query).mappings().all()
+        print(res)
+        if res != []:
+            return res[0]['privileges']
+        return 0
+
+    async def getId(self, conn: Connection, email_hash: str):
+        query = f"""SELECT id,email FROM User;"""
+        aux = conn.execute(query).mappings().all()
+        if aux != []:
+            for u in aux:
+                if hashlib.md5(u['email'].encode()).hexdigest() == email_hash:
+                    return True, u['id']
+        return False, None
+
+
+class Request_model(BaseModel):
+    error_list = []
+
+    async def bestTaxi(self, origin_coord, free_taxis):
+        best = None
+        for key, value in free_taxis.items():
+            dist = self.dist_between_2_p(origin_coord, value)
+            if best is None:
+                best = (key, dist)
+            elif best[1] > dist:
+                best = (key, dist)
+        return best[0]
+
+    def dist_between_2_p(self, origin, dest):
+        return ((((dest[0] - origin[0])**2) + ((dest[1]-origin[1])**2))**0.5)
+
+    async def request(self, conn: Connection, origin: str, destination: str):
+        origin_coord = get_coord_by_address(origin)
+        destination_coord = get_coord_by_address(destination)
+
+        query = "SELECT id, lon_ubi, lat_ubi FROM Taxi WHERE estado LIKE 'free'"
+        aux = conn.execute(query).mappings().all()
+        if aux != []:
+            free_taxis = {}
+            for taxi in aux:
+                free_taxis[taxi['id']] = (taxi['lat_ubi'], taxi['lon_ubi'])
+            best_taxi = self.besTaxi(origin_coord, free_taxis)
+            return True, best_taxi
+        return False, None
+
+    async def postRequest(self, conn: Connection, id_user: int, id_taxi: int, origen: str, destino: str, date: str, time: str):
+        query = f"""INSERT INTO Solicitud(id_user,id_taxi,origen,destino,datenow,estado)
+                    VALUES('{id_user}','{id_taxi}','{origen}','{destino}','{date} {time}:00', 'pending');"""
+        conn.execute(query)

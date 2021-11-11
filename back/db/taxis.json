@@ -1,0 +1,27 @@
+[
+    {
+        "estado": "free",
+        "ubicacion": "Museo del prado",
+        "destino": "Parque de Cibeles"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Calle de la Orquídea",
+        "destino": "Calle Oviedo"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Carretera M-410",
+        "destino": "Parque de Cibeles"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Calle Murcia",
+        "destino": "Calle Osiris"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Calle de la Libertad",
+        "destino": "Camino de Madrid"
+    }
+]
