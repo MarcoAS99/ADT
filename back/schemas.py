@@ -5,7 +5,7 @@ import re
 import hashlib
 import numpy as np
 
-from back.models.initializeTaxis import get_coord_by_address
+from models.initializeTaxis import get_coord_by_address
 
 
 class User_model(BaseModel):
@@ -123,3 +123,8 @@ class Request_model(BaseModel):
         query = f"""INSERT INTO Solicitud(id_user,id_taxi,origen,destino,datenow,estado)
                     VALUES('{id_user}','{id_taxi}','{origen}','{destino}','{date} {time}:00', 'pending');"""
         conn.execute(query)
+
+    async def check_pending_requests(self, conn: Connection):
+        query = f"""SELECT * FROM Solicitud WHERE estado LIKE 'pending';"""
+        res = conn.execute(query).mappings().all()
+        return res

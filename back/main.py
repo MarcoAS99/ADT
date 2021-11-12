@@ -1,4 +1,5 @@
 import hashlib
+from typing import List, Optional
 from fastapi import FastAPI, Request, status, HTTPException
 from fastapi import security
 from fastapi.params import Depends
@@ -9,7 +10,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette.datastructures import Headers
 from starlette.responses import RedirectResponse
 from starlette.status import HTTP_302_FOUND
-from back.schemas import Request_model
+from schemas import Request_model
 from models.initializeTaxis import create_taxis
 from schemas import User_model
 import time
@@ -145,27 +146,29 @@ async def get_users():
     return res
 
 
-async def check_admin(credentials: HTTPBasicCredentials = Depends(security)):
-    user_admin = User_model()
-    with engine.connect() as conn:
-        res = await user_admin.is_admin(conn, credentials.username)
-    return res
-
-
 @app.get("/admin")
-async def read_current_user(admin: int = Depends(check_admin)):
-    if admin == 1:
-        return {"admin": "admin"}
+async def read_current_user():
     return {"admin": "noAdmin"}
 
 
-@app.get('/test/{user}')
-async def test(user):
-    return {"user": user}
+@app.get('/test')
+async def test(request: Request):
+    req = Request_model()
+    with engine.connect() as conn:
+        test = await req.check_pending_requests(conn)
+    if test is None or test == []:
+        return templates.TemplateResponse('request_updates.html', {"request": request})
+    return templates.TemplateResponse('request_updates.html', {"request": request, "requests": test})
+
+
+@app.post('/test')
+async def testpost(test):
+    return {"test": test}
 
 
 @app.get("/{user}/request_taxi")
 async def get_request_taxi(request: Request):
+    testpost('a ver si funciona')
     return templates.TemplateResponse("request_taxi.html", {"request": request})
 
 
