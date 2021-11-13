@@ -10,9 +10,8 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette.datastructures import Headers
 from starlette.responses import RedirectResponse
 from starlette.status import HTTP_302_FOUND
-from schemas import Request_model
+from schemas import Taxi_Model, Request_model, User_model
 from models.initializeTaxis import create_taxis
-from schemas import User_model
 import time
 from database import get_conn, get_engine
 from models.modelsDb import define_Tables
@@ -162,13 +161,30 @@ async def test(request: Request):
 
 
 @app.post('/test')
-async def testpost(test):
-    return {"test": test}
+async def testpost(request: Request):
+    button = await request.form()
+
+    if button.get('accepted') is not None:
+        estado = 'accepted'
+        id_req = button.get('accepted')
+    else:
+        estado = 'canceled'
+        id_req = button.get('canceled')
+
+    request_update = Request_model()
+    taxi_update = Taxi_Model()
+    id_taxi = button.get('id_taxi')
+    with engine.connect() as conn:
+        aux = await request_update.update(conn, id_req, estado)
+        if aux:
+            aux2 = await taxi_update.update(conn, id_taxi)
+    if aux and aux2:
+        return RedirectResponse(url='/test', status_code=HTTP_302_FOUND)
+    return {"error": "error inesperado"}
 
 
 @app.get("/{user}/request_taxi")
 async def get_request_taxi(request: Request):
-    testpost('a ver si funciona')
     return templates.TemplateResponse("request_taxi.html", {"request": request})
 
 

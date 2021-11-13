@@ -128,3 +128,20 @@ class Request_model(BaseModel):
         query = f"""SELECT * FROM Solicitud WHERE estado LIKE 'pending';"""
         res = conn.execute(query).mappings().all()
         return res
+
+    async def update(self, conn: Connection, id_req: int, estado: str):
+        query = f"""UPDATE Solicitud SET estado = '{estado}' WHERE id = {id_req}"""
+        res = conn.execute(query).rowcount
+        if res > 0:
+            return True
+        return False
+
+
+class Taxi_Model(BaseModel):
+
+    async def update(self, conn: Connection, id_taxi: int):
+        query = f"""UPDATE Taxi SET estado = 'busy' WHERE id = {id_taxi}"""
+        res = conn.execute(query).rowcount
+        if res > 0:
+            return True
+        return False
