@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette.datastructures import Headers
 from starlette.responses import RedirectResponse
-from starlette.status import HTTP_302_FOUND
+from starlette.status import HTTP_200_OK, HTTP_302_FOUND
 from schemas import Taxi_Model, Request_model, User_model
 from models.initializeTaxis import create_taxis
 import time
@@ -31,6 +31,8 @@ templates = Jinja2Templates(directory="../html")
 
 mydb = None
 engine = None
+
+notifications = {}
 
 
 @app.on_event("startup")
@@ -117,7 +119,7 @@ async def post_login(request: Request):
         if priv == 1:
             return {"admin": "admin"}
         # return templates.TemplateResponse("request_taxi.html", {"request": request, "login": "logged"})
-        return RedirectResponse(url=f'/{hashlib.md5(email.encode()).hexdigest()}/request_taxi', status_code=HTTP_302_FOUND)
+        return RedirectResponse(url=f'/{hashlib.md5(email.encode()).hexdigest()}/home', status_code=HTTP_302_FOUND)
     return templates.TemplateResponse("login.html", {"request": request, "error": user_log.error_list})
 
 
@@ -174,16 +176,37 @@ async def testpost(request: Request):
     request_update = Request_model()
     taxi_update = Taxi_Model()
     id_taxi = button.get('id_taxi')
+    id_user = button.get('id_user')
     with engine.connect() as conn:
         aux = await request_update.update(conn, id_req, estado)
         if aux:
             aux2 = await taxi_update.update(conn, id_taxi)
-    if aux and aux2:
-        return RedirectResponse(url='/test', status_code=HTTP_302_FOUND)
-    return {"error": "error inesperado"}
+
+    if not notifications.keys().__contains__(f'{id_user}'):
+        notifications[id_user] = []
+    notifications[id_user].append(
+        f"""Tu solicitud con identificador {id_req} sido revisada y {translate_estado(estado)} por un administrador, 
+        contacte con atención al cliente ante cualquier duda""")
+    return RedirectResponse(url='/test', status_code=HTTP_302_FOUND)
 
 
-@app.get("/{user}/request_taxi")
+@app.get("/{email_hash}/home")
+async def get_user_home(request: Request, email_hash: str):
+    user_request = User_model()
+    with engine.connect() as conn:
+        res, user_id = await user_request.getId(conn, email_hash)
+    if res:
+        print(user_id, notifications)
+        if notifications.keys().__contains__(f'{user_id}'):
+            notifs = notifications[f'{user_id}']
+        else:
+            notifs = []
+        print(notifs)
+        return templates.TemplateResponse("user_home.html", {"request": request, 'notif': notifs, 'email_hash': email_hash})
+    return RedirectResponse(url='/login', status_code=HTTP_200_OK)
+
+
+@app.get("/{email_hash}/request_taxi")
 async def get_request_taxi(request: Request):
     return templates.TemplateResponse("request_taxi.html", {"request": request})
 
@@ -202,8 +225,12 @@ async def post_request_taxi(request: Request, email_hash: str):
         if res:
             res2, taxi_id = await taxi_request.request(conn, origin, destination)
             if res2:
-                taxi_request.post_request(
-                    conn, taxi_id, user_id, origin, destination, date, time)
-    if res and res2:
-        pass
-    pass
+                await taxi_request.postRequest(
+                    conn, user_id, taxi_id, origin, destination, date, time)
+    return RedirectResponse(url=f"/{email_hash}/home", status_code=HTTP_302_FOUND)
+
+
+def translate_estado(estado: str):
+    if estado == 'accepted':
+        return 'aceptada'
+    return 'cancelada'

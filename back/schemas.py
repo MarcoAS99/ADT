@@ -95,7 +95,8 @@ class Request_model(BaseModel):
     async def bestTaxi(self, origin_coord, free_taxis):
         best = None
         for key, value in free_taxis.items():
-            dist = self.dist_between_2_p(origin_coord, value)
+            dist = self.dist_between_2_p(
+                (float(origin_coord[0]), float(origin_coord[1])), (float(value[0]), float(value[1])))
             if best is None:
                 best = (key, dist)
             elif best[1] > dist:
@@ -115,7 +116,7 @@ class Request_model(BaseModel):
             free_taxis = {}
             for taxi in aux:
                 free_taxis[taxi['id']] = (taxi['lat_ubi'], taxi['lon_ubi'])
-            best_taxi = self.besTaxi(origin_coord, free_taxis)
+            best_taxi = await self.bestTaxi(origin_coord, free_taxis)
             return True, best_taxi
         return False, None
 
@@ -132,7 +133,7 @@ class Request_model(BaseModel):
     async def update(self, conn: Connection, id_req: int, estado: str):
         query = f"""UPDATE Solicitud SET estado = '{estado}' WHERE id = {id_req}"""
         res = conn.execute(query).rowcount
-        if res > 0:
+        if res > 0 and estado == 'accepted':
             return True
         return False
 

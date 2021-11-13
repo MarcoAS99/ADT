@@ -54,6 +54,7 @@
                                         <td>{{req['id_taxi']}}</td>
                                         <form method="post">
                                             <td class="text-center">
+                                                <input type="hidden" name="id_user" value="{{req['id_user']}}" />
                                                 <input type="hidden" name="id_taxi" value="{{req['id_taxi']}}" />
                                                 <button type="submit" class="btn btn-primary" style=" margin-right:1rem"
                                                     name="accepted" value="{{req['id']}}">Ok</button>
