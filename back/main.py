@@ -102,7 +102,6 @@ async def home(request: Request):
 
 @app.get("/login", response_class=HTMLResponse)
 async def get_login(request: Request):
-    print(request.method)
     return templates.TemplateResponse("login.html", {"request": request})
 
 
@@ -117,7 +116,7 @@ async def post_login(request: Request):
         with engine.connect() as conn:
             priv = await user_log.is_admin(conn, email)
         if priv == 1:
-            return {"admin": "admin"}
+            return RedirectResponse(url=f'/{hashlib.md5(email.encode()).hexdigest()}/admin', status_code=HTTP_302_FOUND)
         # return templates.TemplateResponse("request_taxi.html", {"request": request, "login": "logged"})
         return RedirectResponse(url=f'/{hashlib.md5(email.encode()).hexdigest()}/home', status_code=HTTP_302_FOUND)
     return templates.TemplateResponse("login.html", {"request": request, "error": user_log.error_list})
@@ -147,13 +146,8 @@ async def get_users():
     return res
 
 
-@app.get("/admin")
-async def read_current_user():
-    return {"admin": "noAdmin"}
-
-
-@app.get('/test')
-async def test(request: Request):
+@app.get("/{email_hash}/admin")
+async def read_current_user(request: Request):
     req = Request_model()
     with engine.connect() as conn:
         test = await req.check_pending_requests(conn)
@@ -162,8 +156,8 @@ async def test(request: Request):
     return templates.TemplateResponse('request_updates.html', {"request": request, "requests": test})
 
 
-@app.post('/test')
-async def testpost(request: Request):
+@app.post("/{email_hash}/admin")
+async def postAdmin(request: Request, email_hash: str):
     button = await request.form()
 
     if button.get('accepted') is not None:
@@ -185,9 +179,9 @@ async def testpost(request: Request):
     if not notifications.keys().__contains__(f'{id_user}'):
         notifications[id_user] = []
     notifications[id_user].append(
-        f"""Tu solicitud con identificador {id_req} sido revisada y {translate_estado(estado)} por un administrador, 
+        f"""Tu solicitud con identificador {id_req} ha sido revisada y {translate_estado(estado)} por un administrador, 
         contacte con atención al cliente ante cualquier duda""")
-    return RedirectResponse(url='/test', status_code=HTTP_302_FOUND)
+    return RedirectResponse(url=f'/{email_hash}/admin', status_code=HTTP_302_FOUND)
 
 
 @app.get("/{email_hash}/home")
@@ -195,14 +189,13 @@ async def get_user_home(request: Request, email_hash: str):
     user_request = User_model()
     with engine.connect() as conn:
         res, user_id = await user_request.getId(conn, email_hash)
-    if res:
-        print(user_id, notifications)
+        aux, username = await user_request.getNameFromId(conn, user_id)
+    if res and aux:
         if notifications.keys().__contains__(f'{user_id}'):
             notifs = notifications[f'{user_id}']
         else:
             notifs = []
-        print(notifs)
-        return templates.TemplateResponse("user_home.html", {"request": request, 'notif': notifs, 'email_hash': email_hash})
+        return templates.TemplateResponse("user_home.html", {"request": request, 'notif': notifs, 'email_hash': email_hash, 'username': username})
     return RedirectResponse(url='/login', status_code=HTTP_200_OK)
 
 

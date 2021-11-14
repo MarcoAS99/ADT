@@ -43,7 +43,6 @@ class User_model(BaseModel):
         query = f"""SELECT COUNT(email) AS cont, validated FROM User WHERE email LIKE '{email}'
                     GROUP BY validated;"""
         res = conn.execute(query).mappings().all()
-        print(res)
         if(res[0]['cont'] <= 0):
             self.error_list.append('User not registered.')
             return False
@@ -61,9 +60,7 @@ class User_model(BaseModel):
     async def validate(self, conn: Connection, email: str):
         query = f"""SELECT email FROM User WHERE validated=FALSE;"""
         aux = conn.execute(query).mappings().all()
-        print(aux)
         for cursor in aux:
-            print(cursor['email'])
             if email == cursor['email']:
                 query = f"""UPDATE User SET validated=TRUE WHERE email LIKE '{email}'"""
                 res = conn.execute(query).rowcount
@@ -74,7 +71,6 @@ class User_model(BaseModel):
     async def is_admin(self, conn: Connection, email: str):
         query = f"""SELECT privileges FROM User WHERE email LIKE '{email}';"""
         res = conn.execute(query).mappings().all()
-        print(res)
         if res != []:
             return res[0]['privileges']
         return 0
@@ -86,6 +82,13 @@ class User_model(BaseModel):
             for u in aux:
                 if hashlib.md5(u['email'].encode()).hexdigest() == email_hash:
                     return True, u['id']
+        return False, None
+
+    async def getNameFromId(self, conn: Connection, user_id: int):
+        query = f"""SELECT nombre FROM User WHERE id = {user_id};"""
+        aux = conn.execute(query).mappings().all()
+        if aux != []:
+            return True, aux[0]['nombre']
         return False, None
 
 
