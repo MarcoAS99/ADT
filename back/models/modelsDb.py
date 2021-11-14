@@ -1,6 +1,6 @@
 from sqlalchemy import Table, Column
 from sqlalchemy.sql.schema import ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, String, DateTime, Boolean
+from sqlalchemy.sql.sqltypes import DECIMAL, Integer, String, DateTime, Boolean
 from sqlalchemy import MetaData
 
 
@@ -26,7 +26,11 @@ def define_Tables():
         Column('id', Integer, primary_key=True, autoincrement=True),
         Column('estado', String(8)),
         Column('ubicacion', String(100)),
+        Column('lon_ubi', DECIMAL(11, 7)),
+        Column('lat_ubi', DECIMAL(11, 7)),
         Column('destino', String(100)),
+        Column('lon_dest', DECIMAL(11, 7)),
+        Column('lat_dest', DECIMAL(11, 7)),
         extend_existing=True
     )
 
