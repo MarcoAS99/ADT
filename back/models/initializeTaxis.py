@@ -11,18 +11,11 @@ def get_coord_by_address(address):
     will repeat until success"""
     time.sleep(1)
     try:
-        location = client.geocode(address).raw
+        location = client.geocode(f'{address}, Madrid').raw
         coord = (location['lat'], location['lon'])
         return coord
     except:
         return get_coord_by_address(address)
-
-
-address = "Miguel Solas"
-coords = get_coord_by_address(address)
-latitude = coords[0]
-longitude = coords[1]
-print(f"{latitude}, {longitude}")
 
 
 def create_taxis(conn: Connection):

@@ -8,9 +8,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette.datastructures import Headers
-from starlette.responses import RedirectResponse
+from starlette.responses import FileResponse, RedirectResponse
 from starlette.status import HTTP_200_OK, HTTP_302_FOUND
-from schemas import Taxi_Model, Request_model, User_model
+from mapController import Map
+from schemas import Taxi_Model, Request_model, User_model, Map_Model
 from models.initializeTaxis import create_taxis
 import time
 from database import get_conn, get_engine
@@ -146,7 +147,7 @@ async def get_users():
     return res
 
 
-@app.get("/{email_hash}/admin")
+@app.get("/{email_hash}/admin/requests")
 async def read_current_user(request: Request):
     req = Request_model()
     with engine.connect() as conn:
@@ -156,7 +157,7 @@ async def read_current_user(request: Request):
     return templates.TemplateResponse('request_updates.html', {"request": request, "requests": test})
 
 
-@app.post("/{email_hash}/admin")
+@app.post("/{email_hash}/admin/requests")
 async def postAdmin(request: Request, email_hash: str):
     button = await request.form()
 
@@ -181,7 +182,7 @@ async def postAdmin(request: Request, email_hash: str):
     notifications[id_user].append(
         f"""Tu solicitud con identificador {id_req} ha sido revisada y {translate_estado(estado)} por un administrador, 
         contacte con atención al cliente ante cualquier duda""")
-    return RedirectResponse(url=f'/{email_hash}/admin', status_code=HTTP_302_FOUND)
+    return RedirectResponse(url=f'/{email_hash}/admin/requests', status_code=HTTP_302_FOUND)
 
 
 @app.get("/{email_hash}/home")
@@ -221,6 +222,41 @@ async def post_request_taxi(request: Request, email_hash: str):
                 await taxi_request.postRequest(
                     conn, user_id, taxi_id, origin, destination, date, time)
     return RedirectResponse(url=f"/{email_hash}/home", status_code=HTTP_302_FOUND)
+
+
+@app.get("/{email_hash}/admin")
+async def get_map(request: Request):
+    map_request = Map_Model()
+    map_controller = Map()
+    req_handler = Request_model()
+    with engine.connect() as conn:
+        res, taxis_coords, taxis = await map_request.get_coords(conn)
+        requests = await req_handler.check_pending_requests(conn)
+    if res:
+        map_controller.add_taxis(taxis_coords, taxis)
+        return templates.TemplateResponse("admin.html", {"request": request, "map": map_controller.get_script(), "taxis": taxis, "reqs": len(requests)})
+    return {"error": "error"}
+
+
+@app.get("/{email_hash}/admin/download")
+async def get_download_requests(request: Request):
+    return templates.TemplateResponse("download.html", {"request": request})
+
+
+@app.post("/{email_hash}/admin/download")
+async def post_download_requests(request: Request):
+    req_handler = Request_model()
+    with engine.connect() as conn:
+        requests = await req_handler.get_requests(conn)
+    with open('logs/requests_log.txt', 'w') as log:
+        log.write(
+            '====================== REQUESTS LOG =============================\n')
+        for req in requests:
+            for key, value in req.items():
+                log.write(f'{key}:{value}\n')
+            log.write(
+                '=================================================================\n')
+    return FileResponse('logs/requests_log.txt', media_type='text')
 
 
 def translate_estado(estado: str):
