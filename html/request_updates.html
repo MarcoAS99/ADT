@@ -11,7 +11,7 @@
         integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
 </head>
 
-<body style="background-image: url(../static/img/taxi_back.jpg); 
+<body style="background-image: url(/static/img/taxi_back.jpg); 
     background-repeat: no-repeat;background-size: cover; ">
     <nav class="navbar navbar-dark bg-dark">
         <div class="container-fluid">
@@ -56,6 +56,7 @@
                                             <td class="text-center">
                                                 <input type="hidden" name="id_user" value="{{req['id_user']}}" />
                                                 <input type="hidden" name="id_taxi" value="{{req['id_taxi']}}" />
+                                                <input type="hidden" name="destino" value="{{req['destino']}}" />
                                                 <button type="submit" class="btn btn-primary" style=" margin-right:1rem"
                                                     name="accepted" value="{{req['id']}}">Ok</button>
                                                 <button type="submit" class="btn btn-danger" name="canceled"

@@ -1,14 +1,10 @@
 import hashlib
-from typing import List, Optional
 from fastapi import FastAPI, Request, status, HTTPException
-from fastapi import security
-from fastapi.params import Depends
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from starlette.datastructures import Headers
-from starlette.responses import FileResponse, RedirectResponse
+from starlette.responses import FileResponse, RedirectResponse, StreamingResponse
 from starlette.status import HTTP_200_OK, HTTP_302_FOUND
 from mapController import Map
 from schemas import Taxi_Model, Request_model, User_model, Map_Model
@@ -17,6 +13,7 @@ import time
 from database import get_conn, get_engine
 from models.modelsDb import define_Tables
 import docker
+import os
 from validate_mail import send_validation_email
 
 
@@ -172,15 +169,16 @@ async def postAdmin(request: Request, email_hash: str):
     taxi_update = Taxi_Model()
     id_taxi = button.get('id_taxi')
     id_user = button.get('id_user')
+    ubi = button.get('destino')
     with engine.connect() as conn:
         aux = await request_update.update(conn, id_req, estado)
         if aux:
-            aux2 = await taxi_update.update(conn, id_taxi)
+            aux2 = await taxi_update.update(conn, id_taxi, ubi)
 
     if not notifications.keys().__contains__(f'{id_user}'):
         notifications[id_user] = []
     notifications[id_user].append(
-        f"""Tu solicitud con identificador {id_req} ha sido revisada y {translate_estado(estado)} por un administrador, 
+        f"""Tu solicitud con identificador {id_req} ha sido revisada y {translate_estado(estado)} por un administrador,
         contacte con atención al cliente ante cualquier duda""")
     return RedirectResponse(url=f'/{email_hash}/admin/requests', status_code=HTTP_302_FOUND)
 
@@ -248,6 +246,12 @@ async def post_download_requests(request: Request):
     req_handler = Request_model()
     with engine.connect() as conn:
         requests = await req_handler.get_requests(conn)
+    write_file(requests)
+    event_generator = logGenerator(request)
+    return StreamingResponse(event_generator, headers={'Content-Length': f"{os.path.getsize('logs/requests_log.txt')}"} , media_type='text')
+
+
+def write_file(requests):
     with open('logs/requests_log.txt', 'w') as log:
         log.write(
             '====================== REQUESTS LOG =============================\n')
@@ -256,7 +260,15 @@ async def post_download_requests(request: Request):
                 log.write(f'{key}:{value}\n')
             log.write(
                 '=================================================================\n')
-    return FileResponse('logs/requests_log.txt', media_type='text')
+
+
+async def logGenerator(request: Request):
+    with open('logs/requests_log.txt', 'rb') as log:
+        for line in log:
+            if await request.is_disconnected():
+                break
+            yield line
+            time.sleep(0.005)
 
 
 def translate_estado(estado: str):

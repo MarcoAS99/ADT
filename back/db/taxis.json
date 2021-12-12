@@ -1,27 +1,50 @@
 [
     {
         "estado": "free",
-        "ubicacion": "Museo del prado",
-        "destino": "Parque de Cibeles"
+        "ubicacion": "Museo del prado"
     },
     {
         "estado": "free",
-        "ubicacion": "Calle de la Orquidea",
-        "destino": "Calle Oviedo"
+        "ubicacion": "Calle de la Orquidea"
     },
     {
         "estado": "free",
-        "ubicacion": "Carretera M-410",
-        "destino": "Parque de Cibeles"
+        "ubicacion": "Carretera M-410"
     },
     {
         "estado": "free",
-        "ubicacion": "Calle Murcia",
-        "destino": "Calle Osiris"
+        "ubicacion": "Calle Murcia"
     },
     {
         "estado": "free",
-        "ubicacion": "Calle de la Libertad",
-        "destino": "Camino de Madrid"
+        "ubicacion": "Alcobendas"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Avenida de los Prunos"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Calle de Sepulveda"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Calle Miguel Solas"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Calle Aragon"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Calle de Mendez Alvaro"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Calle de la Diligencia"
+    },
+    {
+        "estado": "free",
+        "ubicacion": "Carretera de El Plantio"
     }
 ]

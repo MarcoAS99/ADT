@@ -146,8 +146,9 @@ class Request_model(BaseModel):
 
 class Taxi_Model(BaseModel):
 
-    async def update(self, conn: Connection, id_taxi: int):
-        query = f"""UPDATE Taxi SET estado = 'busy' WHERE id = {id_taxi}"""
+    async def update(self, conn: Connection, id_taxi: int, dest: str):
+        coords_dest = get_coord_by_address(dest)
+        query = f"""UPDATE Taxi SET estado = 'busy', destino = '{dest}', lon_dest = {coords_dest[1]}, lat_dest = {coords_dest[0]} WHERE id = {id_taxi}"""
         res = conn.execute(query).rowcount
         if res > 0:
             return True

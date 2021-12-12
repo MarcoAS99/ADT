@@ -29,9 +29,8 @@ def create_taxis(conn: Connection):
 
     for taxi in taxis:
         coords_origen = get_coord_by_address(taxi['ubicacion'])
-        coords_dest = get_coord_by_address(taxi['destino'])
 
-        query = f"""INSERT INTO Taxi(estado,ubicacion,lon_ubi,lat_ubi,destino,lon_dest,lat_dest) 
-        VALUES('{taxi['estado']}','{taxi['ubicacion']}','{coords_origen[1]}','{coords_origen[0]}','{taxi['destino']}','{coords_dest[1]}','{coords_dest[0]}')"""
+        query = f"""INSERT INTO Taxi(estado,ubicacion,lon_ubi,lat_ubi) 
+        VALUES('{taxi['estado']}','{taxi['ubicacion']}','{coords_origen[1]}','{coords_origen[0]}')"""
         conn.execute(query)
 # sitio:{nombre} --> coords{sitio}
