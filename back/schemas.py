@@ -4,7 +4,6 @@ from sqlalchemy.engine.base import Connection
 import re
 import hashlib
 import numpy as np
-
 from models.initializeTaxis import get_coord_by_address
 
 
@@ -40,10 +39,9 @@ class User_model(BaseModel):
             return False
 
     async def login(self, conn: Connection, email: str, pwd: str):
-        query = f"""SELECT COUNT(email) AS cont, validated FROM User WHERE email LIKE '{email}'
-                    GROUP BY validated;"""
+        query = f"""SELECT validated FROM User WHERE email LIKE '{email}'"""
         res = conn.execute(query).mappings().all()
-        if(res[0]['cont'] <= 0):
+        if(len(res) <= 0):
             self.error_list.append('User not registered.')
             return False
         if(not res[0]['validated']):
@@ -133,6 +131,11 @@ class Request_model(BaseModel):
         res = conn.execute(query).mappings().all()
         return res
 
+    async def get_requests(self, conn: Connection):
+        query = f"""SELECT * FROM Solicitud;"""
+        res = conn.execute(query).mappings().all()
+        return res
+
     async def update(self, conn: Connection, id_req: int, estado: str):
         query = f"""UPDATE Solicitud SET estado = '{estado}' WHERE id = {id_req}"""
         res = conn.execute(query).rowcount
@@ -143,9 +146,24 @@ class Request_model(BaseModel):
 
 class Taxi_Model(BaseModel):
 
-    async def update(self, conn: Connection, id_taxi: int):
-        query = f"""UPDATE Taxi SET estado = 'busy' WHERE id = {id_taxi}"""
+    async def update(self, conn: Connection, id_taxi: int, dest: str):
+        coords_dest = get_coord_by_address(dest)
+        query = f"""UPDATE Taxi SET estado = 'busy', destino = '{dest}', lon_dest = {coords_dest[1]}, lat_dest = {coords_dest[0]} WHERE id = {id_taxi}"""
         res = conn.execute(query).rowcount
         if res > 0:
             return True
         return False
+
+
+class Map_Model(BaseModel):
+    async def get_coords(self, conn: Connection):
+        query = f"""SELECT * FROM Taxi;"""
+        aux = conn.execute(query).mappings().all()
+        if aux != []:
+            taxis_coords = {}
+            taxis = []
+            for taxi in aux:
+                taxis.append(taxi)
+                taxis_coords[taxi['id']] = (taxi['lat_ubi'], taxi['lon_ubi'])
+            return True, taxis_coords, taxis
+        return False, None

@@ -11,18 +11,11 @@ def get_coord_by_address(address):
     will repeat until success"""
     time.sleep(1)
     try:
-        location = client.geocode(address).raw
+        location = client.geocode(f'{address}, Madrid').raw
         coord = (location['lat'], location['lon'])
         return coord
     except:
         return get_coord_by_address(address)
-
-
-address = "Miguel Solas"
-coords = get_coord_by_address(address)
-latitude = coords[0]
-longitude = coords[1]
-print(f"{latitude}, {longitude}")
 
 
 def create_taxis(conn: Connection):
@@ -36,9 +29,8 @@ def create_taxis(conn: Connection):
 
     for taxi in taxis:
         coords_origen = get_coord_by_address(taxi['ubicacion'])
-        coords_dest = get_coord_by_address(taxi['destino'])
 
-        query = f"""INSERT INTO Taxi(estado,ubicacion,lon_ubi,lat_ubi,destino,lon_dest,lat_dest) 
-        VALUES('{taxi['estado']}','{taxi['ubicacion']}','{coords_origen[1]}','{coords_origen[0]}','{taxi['destino']}','{coords_dest[1]}','{coords_dest[0]}')"""
+        query = f"""INSERT INTO Taxi(estado,ubicacion,lon_ubi,lat_ubi) 
+        VALUES('{taxi['estado']}','{taxi['ubicacion']}','{coords_origen[1]}','{coords_origen[0]}')"""
         conn.execute(query)
 # sitio:{nombre} --> coords{sitio}

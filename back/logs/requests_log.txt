@@ -1,0 +1,161 @@
+====================== REQUESTS LOG =============================
+id:61
+id_user:7
+id_taxi:32
+origen:Nuevos Ministerios
+destino:Barajas
+datenow:2021-11-17 19:00:00
+estado:canceled
+=================================================================
+id:62
+id_user:3
+id_taxi:32
+origen:sol
+destino:cibeles
+datenow:2021-12-03 17:00:00
+estado:accepted
+=================================================================
+id:63
+id_user:3
+id_taxi:38
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:accepted
+=================================================================
+id:64
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:65
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:66
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:67
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:68
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:69
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:70
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:71
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:72
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:73
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:74
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:75
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:76
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:77
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:78
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:79
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
+id:80
+id_user:3
+id_taxi:41
+origen:sol
+destino:parque de cibeles
+datenow:2021-12-03 17:00:00
+estado:pending
+=================================================================
